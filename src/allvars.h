@@ -2333,6 +2333,10 @@ struct PropData
                     SO_angularmomentum_gas.resize(opt.SOnum);
                     for (auto &x:SO_angularmomentum_gas) {x[0]=x[1]=x[2]=0;}
 #ifdef STARON
+		    SO_mass_gas_sf.resize(opt.SOnum);
+                    for (auto &x:SO_mass_gas_sf) x=0;
+		    SO_mass_gas_nsf.resize(opt.SOnum);
+                    for (auto &x:SO_mass_gas_nsf) x=0;
 #endif
                 }
 #endif
@@ -2532,6 +2536,8 @@ struct PropData
                     SO_mass_gas[i] *= opt.h;
                     SO_angularmomentum_gas[i]*=(opt.h*opt.h/opt.a);
 #ifdef STARON
+		    SO_mass_gas_sf[i] *= opt.h;
+		    SO_mass_gas_nsf[i] *= opt.h;
 #endif
 #endif
 #ifdef STARON

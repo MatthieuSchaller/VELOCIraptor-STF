@@ -783,12 +783,19 @@ if (opt.iextragasoutput) {
             Fout.write((char*)&SO_radius[j],sizeof(int));
         }
 #ifdef GASON
-        if (opt.iextragasoutput && opt.iextrahalooutput)
-        for (auto j=0;j<opt.SOnum;j++) {
+        if (opt.iextragasoutput && opt.iextrahalooutput) {
+	  for (auto j=0;j<opt.SOnum;j++) {
             Fout.write((char*)&SO_mass_gas[j],sizeof(int));
-        }
+	  }
 #ifdef STARON
+	  for (auto j=0;j<opt.SOnum;j++) {
+            Fout.write((char*)&SO_mass_gas_sf[j],sizeof(int));
+	  }	  
+	  for (auto j=0;j<opt.SOnum;j++) {
+            Fout.write((char*)&SO_mass_gas_nsf[j],sizeof(int));
+	  }	  
 #endif
+	}
 #endif
 #ifdef STARON
         if (opt.iextrastaroutput && opt.iextrahalooutput)
@@ -1348,12 +1355,19 @@ if (opt.iextragasoutput) {
             Fout<<SO_radius[j]<<" ";
         }
 #ifdef GASON
-        if (opt.iextragasoutput && opt.iextrahalooutput)
-        for (auto j=0;j<opt.SOnum;j++) {
+        if (opt.iextragasoutput && opt.iextrahalooutput) {
+	  for (auto j=0;j<opt.SOnum;j++) {
             Fout<<SO_mass_gas[j]<<" ";
-        }
+	  }
 #ifdef STARON
+	  for (auto j=0;j<opt.SOnum;j++) {
+            Fout<<SO_mass_gas_sf[j]<<" ";
+	  }
+	  for (auto j=0;j<opt.SOnum;j++) {
+            Fout<<SO_mass_gas_nsf[j]<<" ";
+	  }
 #endif
+	}
 #endif
 #ifdef STARON
         if (opt.iextrastaroutput && opt.iextrahalooutput)
@@ -2399,6 +2413,16 @@ if (opt.iextragasoutput) {
 #endif
             }
 #ifdef STARON
+	    for (auto i=0; i<opt.SOnum;i++) {
+	      headerdatainfo.push_back((string("SO_Mass_sf_gas_")+opt.SOthresholds_names_crit[i]+string("_rhocrit")));
+#ifdef USEHDF
+	      hdfpredtypeinfo.push_back(hdfdesiredproprealtype[0]);
+#endif
+	      headerdatainfo.push_back((string("SO_Mass_nsf_gas_")+opt.SOthresholds_names_crit[i]+string("_rhocrit")));
+#ifdef USEHDF
+	      hdfpredtypeinfo.push_back(hdfdesiredproprealtype[0]);
+#endif
+	    }
 #endif
             //add mass
             sizeval = unitdatainfo.size(); for (int i=sizeval;i<headerdatainfo.size();i++) unitdatainfo.push_back(HeaderUnitInfo(1));

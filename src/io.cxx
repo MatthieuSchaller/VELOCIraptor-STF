@@ -2739,6 +2739,14 @@ void WriteProperties(Options &opt, const Int_t ngroups, PropData *pdata){
                     Fhdf.write_dataset(opt, head.headerdatainfo[itemp],ng,data,head.hdfpredtypeinfo[itemp]);itemp++;
                 }
 #ifdef STARON
+                for (auto j=0;j<opt.SOnum;j++) {
+                    for (Int_t i=0;i<ngroups;i++) ((Double_t*)data)[i]=pdata[i+1].SO_mass_gas_sf[j];
+                    Fhdf.write_dataset(opt, head.headerdatainfo[itemp],ng,data,head.hdfpredtypeinfo[itemp]);itemp++;
+                }
+                for (auto j=0;j<opt.SOnum;j++) {
+                    for (Int_t i=0;i<ngroups;i++) ((Double_t*)data)[i]=pdata[i+1].SO_mass_gas_nsf[j];
+                    Fhdf.write_dataset(opt, head.headerdatainfo[itemp],ng,data,head.hdfpredtypeinfo[itemp]);itemp++;
+                }
 #endif
             }
 #endif

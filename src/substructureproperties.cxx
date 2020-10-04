@@ -2992,7 +2992,7 @@ void GetSOMasses(Options &opt, const Int_t nbodies, Particle *Part, Int_t ngroup
     Particle *Pval;
     KDTree *tree;
     Double_t period[3];
-    Int_t i,j,k, nhalos = 0;
+    Int_t i,j,k, sf, nhalos = 0;
     if (opt.iverbose) {
         cout<<"Get inclusive masses"<<endl;
         cout<<" with masses based on full SO search (slower) for halos only "<<endl;
@@ -3043,6 +3043,7 @@ void GetSOMasses(Options &opt, const Int_t nbodies, Particle *Part, Int_t ngroup
     vector<Coordinate> velparts;
     vector<Coordinate> posparts;
     vector<int> typeparts;
+    vector<int> is_sf;
     size_t n;
     Double_t dx;
     vector<Double_t> maxrdist(ngroup+1);
@@ -3137,6 +3138,9 @@ private(i,j,k,taggedparts,radii,masses,indices,posref,posparts,velparts,typepart
 #if defined(GASON) || defined(STARON) || defined(BHON) || defined(HIGHRES)
         if (opt.iextragasoutput || opt.iextrastaroutput || opt.iextrainterloperoutput || opt.iSphericalOverdensityPartList) typeparts.resize(taggedparts.size());
 #endif
+#if defined(GASON) && defined(STARON)
+	if (opt.iextrahalooutput) is_sf.resize(taggedparts.size());
+#endif
         if (opt.iSphericalOverdensityPartList) SOpids.resize(taggedparts.size());
         for (j=0;j<taggedparts.size();j++) {
 #ifndef NOMASS
@@ -3146,6 +3150,14 @@ private(i,j,k,taggedparts,radii,masses,indices,posref,posparts,velparts,typepart
             radii[j]=0;
 #if defined(GASON) || defined(STARON) || defined(BHON) || defined(HIGHRES)
             if (opt.iextragasoutput || opt.iextrastaroutput || opt.iextrainterloperoutput || opt.iSphericalOverdensityPartList) typeparts[j]=Part[taggedparts[j]].GetType();
+#endif
+#if defined(GASON) && defined(STARON)
+	    if (opt.iextrahalooutput) {
+	      if (Part[taggedparts[j]].GetType() == GASTYPE && Part[taggedparts[j]].GetSFR() > opt.gas_sfr_threshold)
+		is_sf[j] = 1;
+	      else
+		is_sf[j] = 0;
+	      }
 #endif
             for (k=0;k<3;k++) {
                 dx=Part[taggedparts[j]].GetPosition(k)-posref[k];
@@ -3229,6 +3241,7 @@ private(i,j,k,taggedparts,radii,masses,indices,posref,posparts,velparts,typepart
 #endif
                 J=Coordinate(posparts[indices[j]]).Cross(velparts[indices[j]])*massval;
                 rc=posparts[indices[j]].Length();
+		sf=is_sf[indices[j]];
                 if (rc<=pdata[i].gR200c) pdata[i].gJ200c+=J;
                 if (rc<=pdata[i].gR200m) pdata[i].gJ200m+=J;
                 if (rc<=pdata[i].gRBN98) pdata[i].gJBN98+=J;
@@ -3253,6 +3266,12 @@ private(i,j,k,taggedparts,radii,masses,indices,posref,posparts,velparts,typepart
                         for (auto iso=0;iso<opt.SOnum;iso++) if (rc<pdata[i].SO_radius[iso]) {
                             pdata[i].SO_mass_gas[iso]+=massval;
                             pdata[i].SO_angularmomentum_gas[iso]+=J;
+#ifdef STARON
+			    if(sf)
+			      pdata[i].SO_mass_gas_sf[iso]+=massval;
+			    else
+			      pdata[i].SO_mass_gas_nsf[iso]+=massval;
+#endif
                         }
                     }
                 }
@@ -4148,6 +4167,8 @@ void CopyMasses(Options &opt, const Int_t nhalos, PropData *&pold, PropData *&pn
                     pnew[i].SO_mass_gas=pold[i].SO_mass_gas;
                     pnew[i].SO_angularmomentum_gas=pold[i].SO_angularmomentum_gas;
 #ifdef STARON
+		    pnew[i].SO_mass_gas_sf=pold[i].SO_mass_gas_sf;
+		    pnew[i].SO_mass_gas_nsf=pold[i].SO_mass_gas_nsf;
 #endif
                 }
 #endif
