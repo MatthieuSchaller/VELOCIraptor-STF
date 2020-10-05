@@ -3152,7 +3152,7 @@ private(i,j,k,taggedparts,radii,masses,indices,posref,posparts,velparts,typepart
             if (opt.iextragasoutput || opt.iextrastaroutput || opt.iextrainterloperoutput || opt.iSphericalOverdensityPartList) typeparts[j]=Part[taggedparts[j]].GetType();
 #endif
 #if defined(GASON) && defined(STARON)
-	    if (opt.iextrahalooutput) {
+	    if (opt.iextragasoutput || opt.iextrastaroutput || opt.iextrainterloperoutput || opt.iSphericalOverdensityPartList) {
 	      if (Part[taggedparts[j]].GetType() == GASTYPE && Part[taggedparts[j]].GetSFR() > opt.gas_sfr_threshold)
 		is_sf[j] = 1;
 	      else
@@ -3374,6 +3374,7 @@ private(i,j,k,taggedparts,radii,masses,indices,posref,posparts,velparts,typepart
         if (opt.iextrahalooutput) {
             posparts.clear();
             velparts.clear();
+	    is_sf.clear();
         }
 #if defined(GASON) || defined(STARON) || defined(BHON) || defined(HIGHRES)
         if (opt.iextragasoutput || opt.iextrastaroutput || opt.iextrainterloperoutput) typeparts.clear();
