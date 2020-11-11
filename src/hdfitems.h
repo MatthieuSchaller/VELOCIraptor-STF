@@ -660,7 +660,7 @@ class H5OutputFile
         int rank = 1;
       	hsize_t dims[1] = {len};
 
-        hid_t memtype_id, filetype_id, dspace_id, dset_id, xfer_plist;
+        hid_t memtype_id, filetype_id, dspace_id, dset_id, xfer_plist, compress_id;
         herr_t status, ret;
         memtype_id = H5Tcopy (H5T_C_S1);
         status = H5Tset_size (memtype_id, data.size());
@@ -670,9 +670,15 @@ class H5OutputFile
         // Create the dataspace
         dspace_id = H5Screate_simple(rank, dims, NULL);
 
+	// Compression filter
+	compress_id = H5Pcreate(H5P_DATASET_CREATE);
+	status = H5Pset_fletcher32(compress_id);
+	status = H5Pset_shuffle(compress_id);
+	status = H5Pset_deflate(compress_id, 1);
+	
         // Create the dataset
         dset_id = H5Dcreate(file_id, name.c_str(), filetype_id, dspace_id,
-            H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT);
+            H5P_DEFAULT, compress_id, H5P_DEFAULT);
 #ifdef USEPARALLELHDF
         if ((flag_parallel) & (opt.mpinprocswritesize>1)) {
             // set up the collective transfer properties list
@@ -693,6 +699,7 @@ class H5OutputFile
 #ifdef USEPARALLELHDF
         if ((flag_parallel) & (opt.mpinprocswritesize>1)) H5Pclose(xfer_plist);
 #endif
+	H5Pclose(compress_id);
         H5Sclose(dspace_id);
         H5Dclose(dset_id);
     }
@@ -843,7 +850,7 @@ class H5OutputFile
 
         // Dataset creation properties
         prop_id = H5P_DEFAULT;
-#ifdef USEHDFCOMPRESSOIN
+#if 1//def USEHDFCOMPRESSION
         // this defines compression
         if(nonzero_size && large_dataset)
         {
